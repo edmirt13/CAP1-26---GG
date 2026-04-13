@@ -22,6 +22,7 @@ function bindTopbar() {
   document.getElementById("brand-home").addEventListener("click", () => navigate("home"));
   document.getElementById("go-home").addEventListener("click", () => navigate("home"));
   document.getElementById("go-disciplines").addEventListener("click", () => navigate("disciplines"));
+  document.getElementById("go-question-map").addEventListener("click", () => navigate("question-map"));
   document.getElementById("go-final-exam").addEventListener("click", () => startFinalExam());
 }
 
@@ -62,6 +63,16 @@ function getProgress() {
 
 function saveProgress(progress) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+
+function resetAllProgress() {
+  localStorage.removeItem(STORAGE_KEY);
+  state.session = null;
+  state.reviewQuestions = [];
+  state.selectedDisciplineId = null;
+  state.selectedLevel = "all";
+  state.view = "home";
+  render();
 }
 
 function registerAnswer(question, isCorrect, mode) {
@@ -142,6 +153,42 @@ function getOverviewStats() {
     accuracy: attempts ? Math.round((correctAnswers / attempts) * 100) : 0,
     sessionsCompleted: sessions.length,
   };
+}
+
+function getQuestionOutcome(questionId) {
+  const stats = getProgress().questionStats[questionId];
+  if (!stats || !stats.attempts) {
+    return "nao_vista";
+  }
+  if (stats.correct === 0) {
+    return "errou";
+  }
+  if (stats.correct === stats.attempts) {
+    return "acertou";
+  }
+  return "misto";
+}
+
+function getQuestionOutcomeLabel(status) {
+  return {
+    acertou: "Acertou",
+    errou: "Errou",
+    misto: "Misto",
+    nao_vista: "Não vista",
+  }[status] || "Não vista";
+}
+
+function getQuestionMapByDiscipline() {
+  const globalMap = new Map(state.data.questions.map((question, index) => [question.id, index + 1]));
+  return getDisciplines().map((discipline) => ({
+    discipline,
+    questions: getQuestionsByDisciplineId(discipline.id).map((question, index) => ({
+      question,
+      localNumber: index + 1,
+      globalNumber: globalMap.get(question.id),
+      status: getQuestionOutcome(question.id),
+    })),
+  }));
 }
 
 function buildDisciplineStats(discipline) {
@@ -472,6 +519,10 @@ function render() {
       app.innerHTML = renderReviewView();
       attachReviewEvents();
       break;
+    case "question-map":
+      app.innerHTML = renderQuestionMapView();
+      attachQuestionMapEvents();
+      break;
     case "home":
     default:
       app.innerHTML = renderHomeView();
@@ -498,6 +549,8 @@ function renderHomeView() {
         <div class="hero-actions">
           <button class="primary-button" data-action="open-disciplines" type="button">Explorar disciplinas</button>
           <button class="secondary-button" data-action="start-final" type="button">Iniciar prova final</button>
+          <button class="outline-button" data-action="open-question-map" type="button">Ver todas as questões</button>
+          <button class="ghost-button" data-action="reset-progress" type="button">Zerar estatísticas</button>
         </div>
       </div>
 
@@ -667,6 +720,74 @@ function renderDisciplinesView() {
               </article>
             `;
           })
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderQuestionMapView() {
+  const groups = getQuestionMapByDiscipline();
+  const totals = groups.flatMap((group) => group.questions);
+  const counts = {
+    acertou: totals.filter((item) => item.status === "acertou").length,
+    errou: totals.filter((item) => item.status === "errou").length,
+    misto: totals.filter((item) => item.status === "misto").length,
+    nao_vista: totals.filter((item) => item.status === "nao_vista").length,
+  };
+
+  return `
+    <section class="view panel">
+      <div class="view-header">
+        <div>
+          <span class="eyebrow">Mapa de questões</span>
+          <h1>Todas as questões por número</h1>
+          <p>Os números mostram o status salvo no navegador. Verde significa acerto, vermelho erro, amarelo misto e cinza questão ainda não vista.</p>
+        </div>
+        <div class="section-actions">
+          <button class="ghost-button" data-action="go-home" type="button">Voltar</button>
+          <button class="outline-button" data-action="reset-progress" type="button">Zerar estatísticas</button>
+        </div>
+      </div>
+
+      <article class="result-card">
+        <h2>Legenda</h2>
+        <div class="question-status-legend">
+          <span class="question-status-pill is-acertou">Acertou: ${counts.acertou}</span>
+          <span class="question-status-pill is-errou">Errou: ${counts.errou}</span>
+          <span class="question-status-pill is-misto">Misto: ${counts.misto}</span>
+          <span class="question-status-pill is-nao-vista">Não vista: ${counts.nao_vista}</span>
+        </div>
+      </article>
+
+      <div class="source-grid">
+        ${groups
+          .map(({ discipline, questions }) => `
+            <article class="source-card">
+              <div class="view-header question-map-header">
+                <div>
+                  <h2>${discipline.nome}</h2>
+                  <p>${questions.length} questões nesta disciplina.</p>
+                </div>
+                <div class="question-meta">
+                  <span class="chip ${discipline.prioritaria ? "priority" : ""}">${formatPriority(discipline.prioritaria)}</span>
+                </div>
+              </div>
+              <div class="question-number-grid">
+                ${questions
+                  .map((item) => `
+                    <span
+                      class="question-number-badge is-${item.status}"
+                      title="${discipline.nome} | questão ${item.globalNumber} | ${getQuestionOutcomeLabel(item.status)}"
+                      aria-label="${discipline.nome}, questão ${item.globalNumber}, ${getQuestionOutcomeLabel(item.status)}"
+                    >
+                      ${item.globalNumber}
+                    </span>
+                  `)
+                  .join("")}
+              </div>
+            </article>
+          `)
           .join("")}
       </div>
     </section>
@@ -903,6 +1024,7 @@ function renderResultView() {
         <div class="result-actions" style="margin-top: 16px;">
           ${wrongQuestions.length ? '<button class="secondary-button" data-action="review-errors" type="button">Revisar questões erradas</button>' : ""}
           ${wrongQuestions.length ? '<button class="outline-button" data-action="redo-errors" type="button">Refazer somente as erradas</button>' : ""}
+          <button class="outline-button" data-action="open-question-map" type="button">Ver mapa de questões</button>
           <button class="ghost-button" data-action="restart-session" type="button">Refazer avaliação inteira</button>
           <button class="primary-button" data-action="go-home" type="button">Voltar ao início</button>
         </div>
@@ -1004,8 +1126,18 @@ function attachHomeEvents() {
   document.querySelectorAll('[data-action="open-disciplines"]').forEach((button) => {
     button.addEventListener("click", () => navigate("disciplines"));
   });
+  document.querySelectorAll('[data-action="open-question-map"]').forEach((button) => {
+    button.addEventListener("click", () => navigate("question-map"));
+  });
   document.querySelectorAll('[data-action="start-final"]').forEach((button) => {
     button.addEventListener("click", () => startFinalExam());
+  });
+  document.querySelectorAll('[data-action="reset-progress"]').forEach((button) => {
+    button.addEventListener("click", () => {
+      if (window.confirm("Isso vai apagar todas as estatísticas e o histórico salvos neste navegador. Deseja continuar?")) {
+        resetAllProgress();
+      }
+    });
   });
   document.querySelectorAll("[data-discipline]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1052,6 +1184,7 @@ function attachQuizEvents() {
 
 function attachResultEvents() {
   document.querySelector('[data-action="go-home"]')?.addEventListener("click", () => navigate("home"));
+  document.querySelector('[data-action="open-question-map"]')?.addEventListener("click", () => navigate("question-map"));
   document.querySelector('[data-action="restart-session"]')?.addEventListener("click", () => restartCurrentMode());
   document.querySelector('[data-action="review-errors"]')?.addEventListener("click", () => {
     state.reviewQuestions = getWrongQuestions(state.session);
@@ -1073,6 +1206,15 @@ function attachReviewEvents() {
     button.addEventListener("click", () => startReviewSession(state.reviewQuestions));
   });
   document.querySelector('[data-action="go-home"]')?.addEventListener("click", () => navigate("home"));
+}
+
+function attachQuestionMapEvents() {
+  document.querySelector('[data-action="go-home"]')?.addEventListener("click", () => navigate("home"));
+  document.querySelector('[data-action="reset-progress"]')?.addEventListener("click", () => {
+    if (window.confirm("Isso vai apagar todas as estatísticas e o histórico salvos neste navegador. Deseja continuar?")) {
+      resetAllProgress();
+    }
+  });
 }
 
 document.addEventListener("click", (event) => {

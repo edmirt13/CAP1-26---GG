@@ -585,6 +585,70 @@ a {
   font-weight: 600;
 }
 
+.question-status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.question-status-pill,
+.question-number-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.question-status-pill {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.question-number-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.question-number-badge {
+  min-height: 48px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.question-number-badge.is-acertou,
+.question-status-pill.is-acertou {
+  border-color: rgba(111, 213, 157, 0.45);
+  background: rgba(111, 213, 157, 0.16);
+}
+
+.question-number-badge.is-errou,
+.question-status-pill.is-errou {
+  border-color: rgba(255, 141, 134, 0.45);
+  background: rgba(255, 141, 134, 0.16);
+}
+
+.question-number-badge.is-misto,
+.question-status-pill.is-misto {
+  border-color: rgba(255, 215, 130, 0.45);
+  background: rgba(255, 215, 130, 0.16);
+}
+
+.question-number-badge.is-nao-vista,
+.question-status-pill.is-nao-vista {
+  border-color: rgba(162, 196, 224, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-soft);
+}
+
+.question-map-header {
+  margin-bottom: 8px;
+}
+
 .kpi-row {
   display: flex;
   flex-wrap: wrap;
