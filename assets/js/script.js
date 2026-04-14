@@ -23,7 +23,8 @@ function bindTopbar() {
   document.getElementById("go-home").addEventListener("click", () => navigate("home"));
   document.getElementById("go-disciplines").addEventListener("click", () => navigate("disciplines"));
   document.getElementById("go-question-map").addEventListener("click", () => navigate("question-map"));
-  document.getElementById("go-final-exam").addEventListener("click", () => startFinalExam());
+  document.getElementById("go-exam-one").addEventListener("click", () => startExam("prova1"));
+  document.getElementById("go-exam-two").addEventListener("click", () => startExam("prova2"));
 }
 
 async function loadData() {
@@ -102,6 +103,7 @@ function registerSessionSummary(session) {
     id: crypto.randomUUID(),
     title: session.title,
     mode: session.mode,
+    examId: session.examId || null,
     score: session.score,
     maxScore: session.maxScore,
     correctCount: getCorrectCount(session),
@@ -209,6 +211,41 @@ function getLatestSessions(limit = 4) {
   return (getProgress().sessions || []).slice(0, limit);
 }
 
+function getExamBlueprint(examId = "prova1") {
+  const configured = state.data?.settings?.examBlueprints;
+  if (configured?.[examId]) {
+    return configured[examId];
+  }
+
+  const fallback = state.data?.settings?.finalExamBlueprint;
+  if (!fallback) {
+    return null;
+  }
+
+  return {
+    id: examId,
+    titulo: examId === "prova2" ? "Prova 2" : "Prova 1",
+    descricao:
+      examId === "prova2"
+        ? "Mais interpretativa, com mais casos, associação de colunas e leitura de contexto."
+        : "Mistura equilibrada de disciplinas, níveis e contextos para revisão geral.",
+    ...fallback,
+  };
+}
+
+function getExamBlueprints() {
+  const configured = state.data?.settings?.examBlueprints;
+  if (configured) {
+    return Object.entries(configured).map(([id, blueprint]) => ({
+      id,
+      ...blueprint,
+    }));
+  }
+
+  const fallback = getExamBlueprint("prova1");
+  return fallback ? [fallback] : [];
+}
+
 function startDisciplineFlow(disciplineId, level = "all") {
   const discipline = getDisciplineById(disciplineId);
   const questions = shuffle(getQuestionsByFilter(disciplineId, level));
@@ -241,15 +278,17 @@ function startReviewSession(questions, title = "Revisão das questões erradas")
   render();
 }
 
-function startFinalExam() {
+function startExam(examId = "prova1") {
   if (!state.data) {
     return;
   }
 
-  const selectedQuestions = buildFinalExamQuestions();
+  const blueprint = getExamBlueprint(examId);
+  const selectedQuestions = buildExamQuestions(examId);
   state.session = buildSession({
-    mode: "final",
-    title: "Prova Final",
+    mode: "exam",
+    examId,
+    title: blueprint?.titulo || (examId === "prova2" ? "Prova 2" : "Prova 1"),
     subtitle: `${selectedQuestions.length} questões, ${selectedQuestions.reduce((sum, question) => sum + question.pontuacao, 0)} pontos`,
     questions: selectedQuestions,
   });
@@ -257,9 +296,14 @@ function startFinalExam() {
   render();
 }
 
-function buildSession({ mode, title, subtitle, questions }) {
+function startFinalExam() {
+  startExam("prova1");
+}
+
+function buildSession({ mode, title, subtitle, questions, examId = null }) {
   return {
     mode,
+    examId,
     title,
     subtitle,
     questions,
@@ -271,29 +315,41 @@ function buildSession({ mode, title, subtitle, questions }) {
   };
 }
 
-function buildFinalExamQuestions() {
-  const blueprint = state.data.settings.finalExamBlueprint;
+function buildExamQuestions(examId = "prova1") {
+  const blueprint = getExamBlueprint(examId);
   const questions = [];
 
   for (const rule of blueprint.disciplineDistribution) {
     const disciplinePool = state.data.questions.filter((question) => question.disciplina === rule.disciplina);
-    const selected = pickBalancedQuestions(disciplinePool, rule.quantidade);
+    const selected = pickExamQuestions(disciplinePool, rule.quantidade, blueprint);
     questions.push(...selected);
   }
 
-  ensureFabContextMinimum(questions, blueprint.fabContextMin || 0);
-  ensureContextualizedMinimum(questions, blueprint.contextualizedMin);
+  ensureMinimumByPredicate(
+    questions,
+    blueprint.relationMin || 0,
+    (question) => getQuestionType(question) === "relacione_colunas",
+    blueprint
+  );
+  ensureMinimumByPredicate(questions, blueprint.caseMin || 0, (question) => isCaseQuestion(question), blueprint);
+  ensureMinimumByPredicate(questions, blueprint.contextualizedMin || 0, (question) => question.contextualizada, blueprint);
+  ensureMinimumByPredicate(
+    questions,
+    blueprint.fabContextMin || 0,
+    (question) => question.contextualizada && question.contexto_fab,
+    blueprint
+  );
   return shuffle(questions).slice(0, blueprint.totalQuestions);
 }
 
-function pickBalancedQuestions(pool, quantity) {
+function pickExamQuestions(pool, quantity, blueprint) {
   const byLevel = {
-    facil: shuffle(pool.filter((question) => question.nivel === "facil")),
-    medio: shuffle(pool.filter((question) => question.nivel === "medio")),
-    dificil: shuffle(pool.filter((question) => question.nivel === "dificil")),
+    facil: sortPoolForBlueprint(pool.filter((question) => question.nivel === "facil"), blueprint),
+    medio: sortPoolForBlueprint(pool.filter((question) => question.nivel === "medio"), blueprint),
+    dificil: sortPoolForBlueprint(pool.filter((question) => question.nivel === "dificil"), blueprint),
   };
 
-  const targets = distributeByLevel(quantity);
+  const targets = distributeByLevel(quantity, blueprint.levelWeights);
   const selected = [];
 
   for (const [level, count] of Object.entries(targets)) {
@@ -305,11 +361,11 @@ function pickBalancedQuestions(pool, quantity) {
     }
   }
 
-  const fallback = shuffle([
+  const fallback = sortPoolForBlueprint([
     ...byLevel.facil,
     ...byLevel.medio,
     ...byLevel.dificil,
-  ]);
+  ], blueprint);
 
   while (selected.length < quantity && fallback.length) {
     selected.push(fallback.shift());
@@ -318,65 +374,83 @@ function pickBalancedQuestions(pool, quantity) {
   return selected;
 }
 
-function distributeByLevel(quantity) {
-  const easy = Math.ceil(quantity * 0.35);
-  const medium = Math.ceil(quantity * 0.35);
-  const hard = quantity - easy - medium;
-  return { facil: easy, medio: medium, dificil: hard };
-}
+function distributeByLevel(quantity, levelWeights = { facil: 0.35, medio: 0.35, dificil: 0.3 }) {
+  const weights = ["facil", "medio", "dificil"].map((level) => {
+    const exact = quantity * (levelWeights[level] ?? 0);
+    return {
+      level,
+      base: Math.floor(exact),
+      remainder: exact - Math.floor(exact),
+    };
+  });
 
-function ensureContextualizedMinimum(questions, minimum) {
-  const current = questions.filter((question) => question.contextualizada).length;
-  if (current >= minimum) {
-    return;
+  let assigned = weights.reduce((total, item) => total + item.base, 0);
+  while (assigned < quantity) {
+    weights
+      .sort((left, right) => right.remainder - left.remainder)
+      .some((item) => {
+        item.base += 1;
+        assigned += 1;
+        return true;
+      });
   }
 
-  const selectedIds = new Set(questions.map((question) => question.id));
-  const remaining = shuffle(
-    state.data.questions.filter((question) => question.contextualizada && !selectedIds.has(question.id))
-  );
-
-  let missing = minimum - current;
-  while (missing > 0 && remaining.length) {
-    const candidate = remaining.shift();
-    const replaceIndex = questions.findIndex((question) => !question.contextualizada && question.disciplina === candidate.disciplina);
-    const safeIndex = replaceIndex >= 0 ? replaceIndex : questions.findIndex((question) => !question.contextualizada);
-    if (safeIndex >= 0) {
-      questions.splice(safeIndex, 1, candidate);
-      missing -= 1;
-    } else {
-      break;
-    }
-  }
+  return Object.fromEntries(weights.map((item) => [item.level, item.base]));
 }
 
-function ensureFabContextMinimum(questions, minimum) {
+function sortPoolForBlueprint(pool, blueprint) {
+  return shuffle(pool).sort((left, right) => scoreQuestionForBlueprint(right, blueprint) - scoreQuestionForBlueprint(left, blueprint));
+}
+
+function scoreQuestionForBlueprint(question, blueprint) {
+  let score = Math.random() * 0.2;
+
+  if (question.contextualizada) {
+    score += blueprint.preferContextualizedWeight || 0;
+  }
+  if (question.contexto_fab) {
+    score += blueprint.preferFabWeight || 0;
+  }
+  if (isCaseQuestion(question)) {
+    score += blueprint.preferCaseWeight || 0;
+  }
+  if (getQuestionType(question) === "relacione_colunas") {
+    score += blueprint.preferRelationWeight || 0;
+  }
+  if (getQuestionType(question) === "analise_assertivas") {
+    score += blueprint.preferAssertiveWeight || 0;
+  }
+  if (question.nivel === "dificil") {
+    score += blueprint.preferHardWeight || 0;
+  }
+  if (question.nivel === "medio") {
+    score += blueprint.preferMediumWeight || 0;
+  }
+
+  return score;
+}
+
+function ensureMinimumByPredicate(questions, minimum, predicate, blueprint) {
   if (!minimum) {
     return;
   }
 
-  const current = questions.filter((question) => question.contextualizada && question.contexto_fab).length;
+  const current = questions.filter((question) => predicate(question)).length;
   if (current >= minimum) {
     return;
   }
 
   const selectedIds = new Set(questions.map((question) => question.id));
-  const remaining = shuffle(
-    state.data.questions.filter(
-      (question) => question.contextualizada && question.contexto_fab && !selectedIds.has(question.id)
-    )
+  const remaining = sortPoolForBlueprint(
+    state.data.questions.filter((question) => predicate(question) && !selectedIds.has(question.id)),
+    blueprint
   );
 
   let missing = minimum - current;
   while (missing > 0 && remaining.length) {
     const candidate = remaining.shift();
-    const replaceIndex = questions.findIndex(
-      (question) => (!question.contexto_fab || !question.contextualizada) && question.disciplina === candidate.disciplina
-    );
-    const safeIndex =
-      replaceIndex >= 0
-        ? replaceIndex
-        : questions.findIndex((question) => !question.contexto_fab || !question.contextualizada);
+    const replaceIndex = questions.findIndex((question) => !predicate(question) && question.disciplina === candidate.disciplina);
+    const safeIndex = replaceIndex >= 0 ? replaceIndex : questions.findIndex((question) => !predicate(question));
 
     if (safeIndex >= 0) {
       questions.splice(safeIndex, 1, candidate);
@@ -438,6 +512,7 @@ function restartCurrentMode() {
   const questions = state.session.questions.map((question) => ({ ...question }));
   state.session = buildSession({
     mode: state.session.mode,
+    examId: state.session.examId || null,
     title: state.session.title,
     subtitle: state.session.subtitle,
     questions: shuffle(questions),
@@ -461,6 +536,55 @@ function formatLevel(level) {
     dificil: "Difícil",
     all: "Todos",
   }[level] || level;
+}
+
+function getQuestionType(question) {
+  return question?.tipo || "multipla_escolha";
+}
+
+function formatQuestionType(type) {
+  return {
+    multipla_escolha: "Múltipla escolha",
+    analise_assertivas: "Análise de assertivas",
+    relacione_colunas: "Relacione colunas",
+    caso_pratico: "Caso prático",
+  }[type] || "Múltipla escolha";
+}
+
+function isCaseQuestion(question) {
+  return getQuestionType(question) === "caso_pratico" || Boolean(question?.interpretativa) || (question?.contextualizada && question?.nivel === "dificil");
+}
+
+function getSessionModeLabel(session) {
+  if (!session) {
+    return "";
+  }
+  if (session.mode === "exam") {
+    return session.examId === "prova2" ? "Prova 2" : "Prova 1";
+  }
+  if (session.mode === "final") {
+    return "Prova 1";
+  }
+  if (session.mode === "review") {
+    return "Refazer erradas";
+  }
+  return "Quiz por disciplina";
+}
+
+function getSessionEyebrow(session) {
+  if (!session) {
+    return "";
+  }
+  if (session.mode === "exam") {
+    return session.examId === "prova2" ? "Avaliação interpretativa" : "Avaliação integrada";
+  }
+  if (session.mode === "final") {
+    return "Avaliação integrada";
+  }
+  if (session.mode === "review") {
+    return "Refazer erradas";
+  }
+  return "Quiz temático";
 }
 
 function formatPriority(value) {
@@ -535,6 +659,8 @@ function renderHomeView() {
   const stats = getOverviewStats();
   const sessions = getLatestSessions();
   const disciplines = getDisciplines();
+  const exams = getExamBlueprints();
+  const prova1 = getExamBlueprint("prova1");
 
   return `
     <section class="panel hero">
@@ -542,13 +668,15 @@ function renderHomeView() {
         <span class="eyebrow">Estudo, revisão e avaliação</span>
         <h1>Base unificada para gestão e governança no contexto do COMAER.</h1>
         <p>
-          Estude por disciplina, escolha níveis de dificuldade, acompanhe sua evolução e faça uma prova final de
-          <strong class="result-highlight">${state.data.settings.finalExamBlueprint.totalPoints} pontos</strong>
-          com maior peso para Governança Pública, SPGIA, Administração Pública e Licitações.
+          Estude por disciplina, escolha níveis de dificuldade, acompanhe sua evolução e faça duas provas de
+          <strong class="result-highlight">${prova1?.totalPoints || 80} pontos</strong>:
+          uma equilibrada para revisão geral e outra mais interpretativa, com maior peso para Governança Pública,
+          SPGIA, Administração Pública e Licitações.
         </p>
         <div class="hero-actions">
           <button class="primary-button" data-action="open-disciplines" type="button">Explorar disciplinas</button>
-          <button class="secondary-button" data-action="start-final" type="button">Iniciar prova final</button>
+          <button class="secondary-button" data-action="start-exam" data-exam="prova1" type="button">Iniciar Prova 1</button>
+          <button class="secondary-button" data-action="start-exam" data-exam="prova2" type="button">Iniciar Prova 2</button>
           <button class="outline-button" data-action="open-question-map" type="button">Ver todas as questões</button>
           <button class="ghost-button" data-action="reset-progress" type="button">Zerar estatísticas</button>
         </div>
@@ -571,6 +699,49 @@ function renderHomeView() {
           <span class="metric-label">Taxa de acerto acumulada</span>
           <span class="metric-value">${stats.accuracy}%</span>
         </div>
+      </div>
+    </section>
+
+    <section class="view panel">
+      <div class="view-header">
+        <div>
+          <span class="eyebrow">Provas</span>
+          <h1>Escolha o estilo de avaliação</h1>
+          <p>A Prova 1 é mais equilibrada. A Prova 2 cobra mais leitura, interpretação, associação e casos práticos.</p>
+        </div>
+      </div>
+
+      <div class="discipline-grid">
+        ${exams
+          .map(
+            (exam) => `
+              <article class="discipline-card exam-card">
+                <div class="discipline-meta">
+                  <span class="discipline-badge ${exam.id === "prova2" ? "priority" : ""}">
+                    ${exam.id === "prova2" ? "Mais exigente" : "Equilibrada"}
+                  </span>
+                  <span class="chip">${exam.totalQuestions} questões</span>
+                  <span class="chip">${exam.totalPoints} pontos</span>
+                </div>
+                <div>
+                  <h2>${exam.titulo}</h2>
+                  <p class="discipline-description">${exam.descricao}</p>
+                </div>
+                <div class="question-meta">
+                  <span class="chip">Contextualizadas: mín. ${exam.contextualizedMin || 0}</span>
+                  <span class="chip">Contexto FAB: mín. ${exam.fabContextMin || 0}</span>
+                  <span class="chip">Relacione colunas: mín. ${exam.relationMin || 0}</span>
+                  <span class="chip">Casos práticos: mín. ${exam.caseMin || 0}</span>
+                </div>
+                <div class="inline-actions">
+                  <button class="${exam.id === "prova2" ? "primary-button" : "secondary-button"}" data-action="start-exam" data-exam="${exam.id}" type="button">
+                    Iniciar ${exam.titulo}
+                  </button>
+                </div>
+              </article>
+            `
+          )
+          .join("")}
       </div>
     </section>
 
@@ -644,7 +815,7 @@ function renderHomeView() {
                     <div class="result-item">
                       <strong>${session.title}</strong>
                       <div class="result-meta">
-                        <span class="chip">${session.mode === "final" ? "Prova final" : session.mode === "review" ? "Refazer erradas" : "Quiz por disciplina"}</span>
+                        <span class="chip">${getSessionModeLabel(session)}</span>
                         <span class="chip">${session.score}/${session.maxScore} pontos</span>
                         <span class="chip">${session.correctCount} acertos</span>
                         <span class="chip">${new Date(session.finishedAt).toLocaleString("pt-BR")}</span>
@@ -658,7 +829,7 @@ function renderHomeView() {
           : `
             <div class="empty-state">
               <h2>Nenhuma sessão concluída ainda</h2>
-              <p>Assim que você finalizar um quiz ou uma prova final, o resumo aparecerá aqui.</p>
+              <p>Assim que você finalizar um quiz ou uma das provas, o resumo aparecerá aqui.</p>
             </div>
           `
       }
@@ -674,7 +845,7 @@ function renderDisciplinesView() {
         <div>
           <span class="eyebrow">Mapa de estudo</span>
           <h1>Selecione uma disciplina</h1>
-          <p>As disciplinas prioritárias receberam banco maior de questões para estudo recorrente e uso intensivo na prova final.</p>
+          <p>As disciplinas prioritárias receberam banco maior de questões para estudo recorrente e uso intensivo nas duas provas.</p>
         </div>
         <div class="section-actions">
           <button class="ghost-button" data-action="go-home" type="button">Voltar</button>
@@ -874,7 +1045,7 @@ function renderQuizView() {
     <section class="view panel">
       <div class="view-header">
         <div>
-          <span class="eyebrow">${session.mode === "final" ? "Avaliação integrada" : session.mode === "review" ? "Refazer erradas" : "Quiz temático"}</span>
+          <span class="eyebrow">${getSessionEyebrow(session)}</span>
           <h1>${session.title}</h1>
           <p>${session.subtitle}</p>
         </div>
@@ -890,6 +1061,7 @@ function renderQuizView() {
             <span class="chip">${formatLevel(question.nivel)}</span>
             <span class="chip">${question.subtema}</span>
             <span class="chip">${question.pontuacao} pontos</span>
+            ${getQuestionType(question) !== "multipla_escolha" ? `<span class="chip">${formatQuestionType(getQuestionType(question))}</span>` : ""}
             ${question.contextualizada ? '<span class="chip priority">Contextualizada</span>' : ""}
             ${question.contexto_fab ? '<span class="chip priority">Contexto FAB</span>' : ""}
           </div>
@@ -956,7 +1128,7 @@ function renderQuizView() {
           <article class="sidebar-card">
             <span class="metric-label">Pontuação</span>
             <p class="metric-value">${session.score}<small style="font-size: 1rem;">/${session.maxScore}</small></p>
-            <p class="meta-copy">Cada questão do banco inicial vale 2 pontos para simplificar o controle e fechar a prova final em 80 pontos.</p>
+            <p class="meta-copy">Cada questão do banco vale 2 pontos para simplificar o controle e manter as provas fechando em 80 pontos.</p>
           </article>
 
           <article class="sidebar-card">
@@ -1017,7 +1189,7 @@ function renderResultView() {
       <article class="result-card">
         <h2>Painel de resultado</h2>
         <div class="result-meta">
-          <span class="chip">${session.mode === "final" ? "Prova final" : session.mode === "review" ? "Refazer erradas" : "Quiz por disciplina"}</span>
+          <span class="chip">${getSessionModeLabel(session)}</span>
           <span class="chip">${session.questions.length} questões</span>
           <span class="chip">${new Date().toLocaleString("pt-BR")}</span>
         </div>
@@ -1053,7 +1225,7 @@ function renderResultView() {
             : `
               <div class="empty-state">
                 <h2>Sem erros nesta rodada</h2>
-                <p>Você concluiu a sessão sem itens incorretos. Vale seguir para outra disciplina ou para a prova final.</p>
+                <p>Você concluiu a sessão sem itens incorretos. Vale seguir para outra disciplina ou tentar uma das provas.</p>
               </div>
             `
         }
@@ -1129,8 +1301,8 @@ function attachHomeEvents() {
   document.querySelectorAll('[data-action="open-question-map"]').forEach((button) => {
     button.addEventListener("click", () => navigate("question-map"));
   });
-  document.querySelectorAll('[data-action="start-final"]').forEach((button) => {
-    button.addEventListener("click", () => startFinalExam());
+  document.querySelectorAll('[data-action="start-exam"]').forEach((button) => {
+    button.addEventListener("click", () => startExam(button.dataset.exam || "prova1"));
   });
   document.querySelectorAll('[data-action="reset-progress"]').forEach((button) => {
     button.addEventListener("click", () => {

@@ -10,6 +10,13 @@ Aplicação web estática para estudo e avaliação sobre:
 - Noções Básicas de Licitações e Contratos
 - Estudo Técnico Preliminar
 
+O sistema agora inclui:
+
+- quizzes por disciplina e por nível
+- `Prova 1`, mais equilibrada para revisão geral
+- `Prova 2`, mais interpretativa, com maior peso em casos práticos, contexto FAB e associação de conceitos
+- questões em múltipla escolha, análise de assertivas, relação entre colunas e casos práticos
+
 ## Estrutura
 
 - `index.html`
@@ -45,4 +52,5 @@ http://localhost:8080
 
 - O progresso fica salvo no `localStorage` do navegador.
 - A primeira versão usa banco de questões estático em JSON para facilitar manutenção.
+- Há duas provas de 80 pontos: uma equilibrada e outra mais exigente em interpretação.
 - As referências normativas podem exigir revisão humana periódica, principalmente em temas de licitações, integridade e orçamento.
