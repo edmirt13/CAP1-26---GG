@@ -1,8 +1,8 @@
 {
   "metadata": {
     "titulo": "Banco Inicial de Questões - Gestão e Governança no COMAER",
-    "versao": "1.2.0",
-    "ultima_atualizacao": "2026-04-13",
+    "versao": "1.3.0",
+    "ultima_atualizacao": "2026-04-14",
     "idioma": "pt-BR",
     "leitura_pasta": {
       "pasta": "D:\\Aplicativos\\Gestão e Governança\\Material",
@@ -19,6 +19,11 @@
         "arquivo": "C:\\Users\\edmir\\OneDrive\\Curso CAP\\Presencial - 1_2026\\GG\\Material\\Resumo GG - DUG_compressed.pdf",
         "leitura": "parcial com leitura visual das páginas-chave",
         "observacao": "Resumo complementar usado para reforçar questões comparativas, casos práticos e associações conceituais."
+      },
+      {
+        "arquivo": "C:\\Users\\edmir\\OneDrive\\Curso CAP\\Presencial - 1_2026\\GG\\Material\\3) (SPGIA) (muito importante)\\DCA_11-1.pdf",
+        "leitura": "boa, com extração textual suficiente",
+        "observacao": "Fonte normativa complementar usada para ampliar SPGIA com foco em níveis de planejamento, DIPLAN, cadeia de valor, PTA, PBC e alinhamento estratégico."
       }
     ]
   },
@@ -79,7 +84,8 @@
       "fontes": [
         "Slide Aula de SPGIA.pdf",
         "EAO GG 1 26 Briefing .pdf",
-        "Glossario GG.pdf"
+        "Glossario GG.pdf",
+        "DCA_11-1.pdf"
       ]
     },
     {
@@ -184,11 +190,11 @@
       "disciplineDistribution": [
         {
           "disciplina": "Governança Pública",
-          "quantidade": 8
+          "quantidade": 7
         },
         {
           "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
-          "quantidade": 7
+          "quantidade": 8
         },
         {
           "disciplina": "Conceitos de Administração Pública",
@@ -238,11 +244,11 @@
         "disciplineDistribution": [
           {
             "disciplina": "Governança Pública",
-            "quantidade": 8
+            "quantidade": 7
           },
           {
             "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
-            "quantidade": 7
+            "quantidade": 8
           },
           {
             "disciplina": "Conceitos de Administração Pública",
@@ -291,11 +297,11 @@
         "disciplineDistribution": [
           {
             "disciplina": "Governança Pública",
-            "quantidade": 8
+            "quantidade": 7
           },
           {
             "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
-            "quantidade": 7
+            "quantidade": 8
           },
           {
             "disciplina": "Conceitos de Administração Pública",
@@ -808,19 +814,19 @@
     {
       "id": "spg-facil-003",
       "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
-      "subtema": "Instrumentos",
+      "subtema": "Níveis de planejamento",
       "nivel": "facil",
-      "enunciado": "No material, a sigla PTA está associada mais diretamente a:",
+      "enunciado": "Na DCA 11-1/2020, o PTA está associado mais diretamente a qual nível do planejamento institucional do COMAER?",
       "alternativas": {
-        "A": "plano tático anual da União",
-        "B": "instrumento de planejamento da OM",
-        "C": "programa tributário aeronáutico",
-        "D": "processo de tomada administrativa"
+        "A": "Nível estratégico",
+        "B": "Nível operacional",
+        "C": "Nível tático",
+        "D": "Nível externo ao COMAER"
       },
-      "resposta_correta": "B",
-      "explicacao": "Os slides indicam o PTA como instrumento ligado à OM, em articulação com os planos superiores.",
-      "referencia_material": "Slide Aula de SPGIA.pdf - menções a PLANSET e PTA (Cn)",
-      "referencia_normativa": "Referência institucional do EMAER sobre SPGIA",
+      "resposta_correta": "C",
+      "explicacao": "A DCA 11-1 afirma que o nível tático detalha e executa tarefas derivadas dos projetos e atividades dos Planos Setoriais por meio do PTA.",
+      "referencia_material": "DCA_11-1.pdf - item 2.4.4; Slide Aula de SPGIA.pdf - menções a PTA",
+      "referencia_normativa": "DCA 11-1/2020",
       "pontuacao": 2,
       "tipo": "multipla_escolha",
       "contextualizada": false,
@@ -1112,11 +1118,11 @@
         "D": "V, V, F, V"
       },
       "resposta_correta": "A",
-      "explicacao": "Os três primeiros itens são compatíveis com os slides; o quarto é falso, porque indicadores e riscos são mencionados de forma expressa.",
-      "referencia_material": "Slide Aula de SPGIA.pdf - blocos sobre PEMAER, PLANSET, PTA, indicadores e riscos",
-      "referencia_normativa": "Referência institucional do EMAER sobre SPGIA",
+      "explicacao": "PEMAER, PLANSET e PTA aparecem como instrumentos encadeados da SPGIA. Já indicadores e riscos são expressamente relevantes para o acompanhamento institucional, de modo que a última assertiva é falsa.",
+      "referencia_material": "Slide Aula de SPGIA.pdf - blocos sobre PEMAER, PLANSET, PTA, indicadores e riscos; DCA_11-1.pdf - itens 2.4, 2.7 e 2.8",
+      "referencia_normativa": "DCA 11-1/2020",
       "pontuacao": 2,
-      "tipo": "multipla_escolha",
+      "tipo": "analise_assertivas",
       "contextualizada": false,
       "prioridade_disciplina": true
     },
@@ -2910,9 +2916,9 @@
         "D": "um processo exclusivo de contratação pública"
       },
       "resposta_correta": "A",
-      "explicacao": "A SPGIA estrutura o encadeamento entre níveis de planejamento, permitindo transformar orientação estratégica em ação institucional monitorável.",
-      "referencia_material": "Slide Aula de SPGIA.pdf - instrumentos de planejamento e desdobramento estratégico",
-      "referencia_normativa": "Referenciais institucionais da SPGIA e do PEMAER",
+      "explicacao": "A DCA 11-1 reforça que o planejamento estratégico se desdobra no nível operacional e chega ao nível tático por meio do PTA, permitindo rastrear a estratégia até a execução.",
+      "referencia_material": "Slide Aula de SPGIA.pdf - instrumentos de planejamento e desdobramento estratégico; DCA_11-1.pdf - itens 2.4.2 a 2.4.4, 2.7.1 e 2.8.3",
+      "referencia_normativa": "DCA 11-1/2020",
       "pontuacao": 2,
       "tipo": "caso_pratico",
       "contextualizada": true,
@@ -2933,14 +2939,228 @@
         "D": "A fase de liquidação da despesa"
       },
       "resposta_correta": "A",
-      "explicacao": "A SPGIA liga execução a monitoramento, indicadores e riscos. Sem esses elementos, o acompanhamento dos resultados institucionais fica enfraquecido.",
-      "referencia_material": "Slide Aula de SPGIA.pdf - indicadores, riscos e acompanhamento",
-      "referencia_normativa": "Referenciais institucionais da SPGIA",
+      "explicacao": "A SPGIA exige acompanhamento por indicadores e atenção a riscos. Sem isso, projetos podem até ser executados, mas perdem rastreabilidade, capacidade de correção e qualidade gerencial.",
+      "referencia_material": "Slide Aula de SPGIA.pdf - indicadores, riscos e acompanhamento; DCA_11-1.pdf - itens 2.2.14, 2.7.2.2 e Anexo G",
+      "referencia_normativa": "DCA 11-1/2020",
       "pontuacao": 2,
       "tipo": "caso_pratico",
       "contextualizada": true,
       "contexto_fab": true,
       "interpretativa": true,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-rel-026",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Níveis e instrumentos",
+      "nivel": "medio",
+      "enunciado": "Relacione os elementos da Coluna A com as descrições da Coluna B, conforme a DCA 11-1. Coluna A: 1. Nível Estratégico 2. Nível Operacional 3. Nível Tático 4. DIPLAN. Coluna B: ( ) documento que baliza a confecção dos PLANSET; ( ) formula a concepção de futuro e a estratégia institucional; ( ) detalha tarefas da OM por meio do PTA; ( ) desdobra estratégias em nível setorial. Qual sequência correta?",
+      "alternativas": {
+        "A": "4, 1, 3, 2",
+        "B": "1, 2, 3, 4",
+        "C": "2, 4, 1, 3",
+        "D": "3, 1, 4, 2"
+      },
+      "resposta_correta": "A",
+      "explicacao": "A DCA 11-1 associa o nível estratégico à concepção de futuro e ao PEMAER, o operacional ao desdobramento setorial, o tático ao PTA e a DIPLAN ao balizamento dos PLANSET.",
+      "referencia_material": "DCA_11-1.pdf - itens 2.4.2 a 2.4.4 e 2.8.3",
+      "referencia_normativa": "DCA 11-1/2020",
+      "pontuacao": 2,
+      "tipo": "relacione_colunas",
+      "contextualizada": false,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-facil-027",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Âmbito",
+      "nivel": "facil",
+      "enunciado": "Segundo a DCA 11-1/2020, a presente norma, de observância obrigatória, aplica-se a:",
+      "alternativas": {
+        "A": "todas as Organizações do Comando da Aeronáutica",
+        "B": "apenas ao Estado-Maior da Aeronáutica",
+        "C": "somente aos ODSA que publicam PLANSET",
+        "D": "apenas às OM operacionais com PTA próprio"
+      },
+      "resposta_correta": "A",
+      "explicacao": "A DCA 11-1 explicita no item de âmbito que sua observância é obrigatória em todas as Organizações do COMAER.",
+      "referencia_material": "DCA_11-1.pdf - item 1.4 Âmbito",
+      "referencia_normativa": "DCA 11-1/2020",
+      "pontuacao": 2,
+      "tipo": "multipla_escolha",
+      "contextualizada": false,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-medio-028",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Cadeia de valor",
+      "nivel": "medio",
+      "enunciado": "Qual leitura está mais alinhada com a DCA 11-1 sobre a Cadeia de Valor do COMAER?",
+      "alternativas": {
+        "A": "Ela deve reproduzir o organograma da instituição para mostrar a hierarquia formal.",
+        "B": "Ela evidencia a contribuição de cada Organização para as áreas de negócio e não deve ser confundida com o organograma.",
+        "C": "Ela serve apenas para justificar dotações orçamentárias no PTA.",
+        "D": "Ela substitui o mapa estratégico e torna os objetivos desnecessários."
+      },
+      "resposta_correta": "B",
+      "explicacao": "A DCA 11-1 afirma que a Cadeia de Valor não representa o organograma, mas sim a contribuição de cada Organização para as áreas de negócio em que atua.",
+      "referencia_material": "DCA_11-1.pdf - itens 2.5.4 a 2.5.12",
+      "referencia_normativa": "DCA 11-1/2020",
+      "pontuacao": 2,
+      "tipo": "multipla_escolha",
+      "contextualizada": false,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-case-029",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Conteúdo ostensivo e sigiloso",
+      "nivel": "dificil",
+      "enunciado": "Uma OM pretende inserir, no PLANSET ostensivo, detalhes de uma ação sigilosa de produção de conhecimentos de inteligência. Ao mesmo tempo, deseja registrar medidas de segurança orgânica ligadas à contrainteligência. À luz da DCA 11-1, qual encaminhamento é mais adequado?",
+      "alternativas": {
+        "A": "Incluir tudo normalmente no PLANSET, porque toda ação institucional deve constar nos documentos da SPGIA.",
+        "B": "Excluir qualquer referência aos dois assuntos, inclusive segurança orgânica, para evitar risco de divulgação.",
+        "C": "Tratar a ação sigilosa pela metodologia própria da inteligência, mantendo fora dos documentos ostensivos da SPGIA, mas permitindo que ações de segurança orgânica constem nesses documentos.",
+        "D": "Transformar o conteúdo sigiloso em item do Calendário Administrativo, sem outro tratamento."
+      },
+      "resposta_correta": "C",
+      "explicacao": "A DCA 11-1 restringe o alinhamento da SPGIA ao conteúdo ostensivo. Temas sigilosos de inteligência seguem metodologia própria, mas ações de contrainteligência ligadas à segurança orgânica podem constar dos documentos da SPGIA.",
+      "referencia_material": "DCA_11-1.pdf - item 2.7.1.14 e 2.7.1.15",
+      "referencia_normativa": "DCA 11-1/2020; PCA 200-1",
+      "pontuacao": 2,
+      "tipo": "caso_pratico",
+      "contextualizada": true,
+      "contexto_fab": true,
+      "interpretativa": true,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-ana-030",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Regras do PTA",
+      "nivel": "dificil",
+      "enunciado": "Assinale a alternativa correta sobre regras de elaboração do PTA na DCA 11-1. I. Metas devem refletir melhorias ou desafios organizacionais, e não mera repetição de tarefas rotineiras. II. Objetivos, projetos e atividades devem ser enunciados com substantivos. III. Marcos e tarefas devem ser enunciados com verbo no infinitivo. IV. A Portaria de aprovação do PTA dispensa a revogação do PTA do ano anterior.",
+      "alternativas": {
+        "A": "V, V, V, F",
+        "B": "V, F, V, V",
+        "C": "F, V, F, V",
+        "D": "V, V, F, F"
+      },
+      "resposta_correta": "A",
+      "explicacao": "A DCA 11-1 veda tratar rotina como meta de melhoria sem justificativa, pede substantivos para objetivos, projetos e atividades, verbo no infinitivo para marcos e tarefas e exige que a portaria revogue o PTA anterior.",
+      "referencia_material": "DCA_11-1.pdf - Anexo G, itens II e IV, especialmente páginas sobre metas, tarefas e aprovação/publicação do PTA",
+      "referencia_normativa": "DCA 11-1/2020",
+      "pontuacao": 2,
+      "tipo": "analise_assertivas",
+      "contextualizada": false,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-dificil-031",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Priorização de projetos",
+      "nivel": "dificil",
+      "enunciado": "Na Matriz de Priorização de Abertura de Projetos utilizada no COMAER, a DCA 11-1 destaca como critérios centrais:",
+      "alternativas": {
+        "A": "alinhamento com capacidades, alinhamento com o mapa estratégico, vinculação a outros projetos e impacto institucional",
+        "B": "antiguidade do gestor, tradição da OM, visibilidade externa e volume de viagens",
+        "C": "exclusivamente urgência declarada e disponibilidade imediata de numerário",
+        "D": "somente custo estimado e tempo de execução, sem relação com estratégia"
+      },
+      "resposta_correta": "A",
+      "explicacao": "A diretriz apresenta uma matriz de priorização que considera critérios estratégicos e de integração institucional, e não apenas urgência ou conveniência pontual.",
+      "referencia_material": "DCA_11-1.pdf - item 2.7.7.1 a 2.7.7.4",
+      "referencia_normativa": "DCA 11-1/2020",
+      "pontuacao": 2,
+      "tipo": "multipla_escolha",
+      "contextualizada": false,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-rel-032",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Avaliação institucional",
+      "nivel": "medio",
+      "enunciado": "Relacione as orientações estratégicas da Coluna A com os cruzamentos da Coluna B, conforme a avaliação institucional descrita na DCA 11-1. Coluna A: 1. Aproveitamento 2. Melhoria 3. Proteção 4. Perigo. Coluna B: ( ) ameaça x ponto fraco; ( ) oportunidade x ponto forte; ( ) ameaça x ponto forte; ( ) oportunidade x ponto fraco. Qual sequência correta?",
+      "alternativas": {
+        "A": "4, 1, 3, 2",
+        "B": "1, 2, 3, 4",
+        "C": "2, 4, 1, 3",
+        "D": "3, 1, 4, 2"
+      },
+      "resposta_correta": "A",
+      "explicacao": "Na avaliação institucional, a DCA 11-1 associa aproveitamento a oportunidade com ponto forte, melhoria a oportunidade com ponto fraco, proteção a ameaça com ponto forte e perigo a ameaça com ponto fraco.",
+      "referencia_material": "DCA_11-1.pdf - item 3.1.5.14",
+      "referencia_normativa": "DCA 11-1/2020",
+      "pontuacao": 2,
+      "tipo": "relacione_colunas",
+      "contextualizada": false,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-case-033",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Objetivos orgânicos e calendário administrativo",
+      "nivel": "dificil",
+      "enunciado": "Em uma OM, o chefe pretende criar como meta estratégica “enviar 12 relatórios mensais de consumo de combustível”, sem apontar melhoria, atraso a corrigir ou desafio organizacional. Segundo a DCA 11-1, qual encaminhamento é mais adequado?",
+      "alternativas": {
+        "A": "Manter a redação como meta estratégica, porque toda rotina administrativa deve virar meta.",
+        "B": "Registrar a rotina no Calendário Administrativo; se houver problema de atraso, aí sim criar objetivo e meta voltados à melhoria desse desempenho.",
+        "C": "Transformar a rotina em Projeto Estratégico do PEMAER para reforçar sua importância.",
+        "D": "Retirar o tema do planejamento anual, porque rotina não pode aparecer no PTA."
+      },
+      "resposta_correta": "B",
+      "explicacao": "A DCA 11-1 diferencia melhoria de rotina. Tarefas rotineiras podem ser lançadas no Calendário Administrativo; metas devem espelhar melhoria ou desafio, como reduzir atraso ou elevar desempenho.",
+      "referencia_material": "DCA_11-1.pdf - Anexo G, detalhamento de metas e Calendário Administrativo",
+      "referencia_normativa": "DCA 11-1/2020",
+      "pontuacao": 2,
+      "tipo": "caso_pratico",
+      "contextualizada": true,
+      "contexto_fab": true,
+      "interpretativa": true,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-medio-034",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Planejamento Baseado em Capacidades",
+      "nivel": "medio",
+      "enunciado": "Segundo a DCA 11-1, o Planejamento Baseado em Capacidades (PBC) conecta principalmente:",
+      "alternativas": {
+        "A": "gerenciamento de performance, planejamento estratégico e alocação de recursos",
+        "B": "apenas fiscalização contratual e calendário administrativo",
+        "C": "somente cadeia de valor e organograma",
+        "D": "exclusivamente inspeções e sindicâncias"
+      },
+      "resposta_correta": "A",
+      "explicacao": "A DCA 11-1 descreve o PBC como método que integra a situação atual da organização, o destino pretendido e a aplicação de recursos para alcançar as capacidades desejadas.",
+      "referencia_material": "DCA_11-1.pdf - item 2.10.3 a 2.10.6",
+      "referencia_normativa": "DCA 11-1/2020",
+      "pontuacao": 2,
+      "tipo": "multipla_escolha",
+      "contextualizada": false,
+      "prioridade_disciplina": true
+    },
+    {
+      "id": "spg-facil-035",
+      "disciplina": "Sistemática de Planejamento e Gestão Institucional da Aeronáutica (SPGIA)",
+      "subtema": "Fases da SPGIA",
+      "nivel": "facil",
+      "enunciado": "Ao final da terceira fase do planejamento institucional da SPGIA, qual documento é elaborado?",
+      "alternativas": {
+        "A": "PEMAER",
+        "B": "DIPLAN",
+        "C": "PLANSET",
+        "D": "PTA"
+      },
+      "resposta_correta": "B",
+      "explicacao": "A DCA 11-1 apresenta o encadeamento das cinco fases e informa que a terceira fase resulta na Diretriz de Planejamento Institucional (DIPLAN).",
+      "referencia_material": "DCA_11-1.pdf - item 2.8.3",
+      "referencia_normativa": "DCA 11-1/2020",
+      "pontuacao": 2,
+      "tipo": "multipla_escolha",
+      "contextualizada": false,
       "prioridade_disciplina": true
     },
     {
